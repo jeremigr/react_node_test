@@ -27,6 +27,30 @@ const TaskList = () => {
   const [editingTask, setEditingTask] = useState(null);
   const [editForm, setEditForm] = useState({ title: '', description: '' });
 
+
+  // --- Filter & search controls ---
+const [filter, setFilter] = useState("all");     // all | complete | incomplete
+const [query, setQuery] = useState("");          // search by title
+
+// Visible list = tasks filtered by state then by filter
+const visibleTasks = React.useMemo(() => {
+  let out = tasks;
+
+  if (filter === "complete") {
+    out = out.filter(t => t.status === "complete");
+  } else if (filter === "incomplete") {
+    out = out.filter(t => t.status === "incomplete");
+  }
+
+  const q = query.trim().toLowerCase();
+  if (q.length > 0) {
+    out = out.filter(t => (t.title || "").toLowerCase().includes(q));
+  }
+
+  return out;
+}, [tasks, filter, query]);
+
+
   /**
    * Load tasks from localStorage or initialize with mock data
    * Uses localStorage for cross-component data sharing
@@ -309,9 +333,52 @@ const TaskList = () => {
   return (
     <div className="bg-white p-4 rounded-lg shadow max-h-96 overflow-y-auto">
       <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">Your Tasks</h3>
+
+      {/* Controls: filter + search */}
+<div className="mb-4 flex flex-wrap gap-2 items-center">
+  <div className="flex gap-2">
+    <button
+      onClick={() => setFilter("all")}
+      className={`px-3 py-1 rounded text-sm ${filter === "all" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"}`}
+      aria-pressed={filter === "all"}
+    >
+      All
+    </button>
+    <button
+      onClick={() => setFilter("complete")}
+      className={`px-3 py-1 rounded text-sm ${filter === "complete" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"}`}
+      aria-pressed={filter === "complete"}
+    >
+      Completed
+    </button>
+    <button
+      onClick={() => setFilter("incomplete")}
+      className={`px-3 py-1 rounded text-sm ${filter === "incomplete" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"}`}
+      aria-pressed={filter === "incomplete"}
+    >
+      In Progress
+    </button>
+  </div>
+
+  <div className="ml-auto">
+    <label htmlFor="task-search" className="sr-only">Search by title</label>
+    <input
+      id="task-search"
+      type="text"
+      value={query}
+      onChange={(e) => setQuery(e.target.value)}
+      placeholder="Search by title…"
+      className="px-3 py-1.5 border rounded text-sm w-56"
+      style={{ color: "black" }}
+    />
+  </div>
+</div>
+
       
       <ul className="space-y-3" aria-label="Task list">
-        {filteredTasks.map((task) => (
+        
+        {visibleTasks.map((task) => (
+
           <li key={task._id} className="border-b pb-3">
             {editingTask === task._id ? (
               // Edit form
