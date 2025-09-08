@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaChartPie, FaUsers, FaTasks, FaCog } from "react-icons/fa";
+import { Logs as LogsIcon } from "lucide-react";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -31,6 +32,18 @@ const Sidebar = () => {
               <span className="text-xl">{icon}</span>
               {label}
             </Link>
+            
+             <Link
+                to="/admin/user-logs"
+                className={`flex items-center gap-2 px-3 py-2 rounded ${
+                  location.pathname.startsWith("/admin/user-logs")
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-200 hover:bg-blue-500/20"
+                }`}
+              >
+                <LogsIcon className="w-4 h-4" />
+                User Logs
+              </Link>
           </li>
         ))}
       </ul>
